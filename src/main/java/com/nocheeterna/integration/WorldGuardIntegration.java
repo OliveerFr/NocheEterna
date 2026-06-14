@@ -4,9 +4,7 @@ import com.nocheeterna.NocheEterna;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
-import com.sk89q.worldguard.protection.flags.Flags;
 import com.sk89q.worldguard.protection.flags.StateFlag;
-import com.sk89q.worldguard.protection.flags.registry.FlagRegistry;
 import com.sk89q.worldguard.protection.regions.RegionQuery;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -29,13 +27,10 @@ public class WorldGuardIntegration implements Listener {
         if (Bukkit.getPluginManager().getPlugin("WorldGuard") == null) {
             return false;
         }
-        try {
-            FlagRegistry registry = WorldGuard.getInstance().getFlagRegistry();
-            noDarknessFlag = new StateFlag("no-darkness", false);
-            registry.register(noDarknessFlag);
-            plugin.getLogger().info("[Integration] WorldGuard flag 'no-darkness' registered.");
-        } catch (Exception e) {
-            plugin.getLogger().warning("[Integration] Could not register WG flag: " + e.getMessage());
+        noDarknessFlag = NocheEterna.noDarknessFlag;
+        if (noDarknessFlag == null) {
+            plugin.getLogger().warning("[Integration] WorldGuard flag 'no-darkness' not available.");
+            return false;
         }
         Bukkit.getPluginManager().registerEvents(this, plugin);
         enabled = true;
@@ -66,7 +61,6 @@ public class WorldGuardIntegration implements Listener {
     public boolean isSafeZone(Location location) {
         if (!enabled || noDarknessFlag == null) return false;
         try {
-            com.sk89q.worldedit.world.World wgWorld = BukkitAdapter.adapt(location.getWorld());
             com.sk89q.worldedit.util.Location wgLoc = BukkitAdapter.adapt(location);
             RegionQuery query = WorldGuard.getInstance().getPlatform().getRegionContainer().createQuery();
             ApplicableRegionSet regions = query.getApplicableRegions(wgLoc);

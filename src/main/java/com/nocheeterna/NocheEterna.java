@@ -17,12 +17,32 @@ import com.nocheeterna.network.NetworkSyncManager;
 import com.nocheeterna.network.NetworkJoinListener;
 import com.nocheeterna.ux.ActionBarFeedback;
 import com.nocheeterna.ux.PlayerWelcome;
+import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.protection.flags.StateFlag;
+import com.sk89q.worldguard.protection.flags.registry.FlagRegistry;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class NocheEterna extends JavaPlugin {
 
     private static NocheEterna instance;
     private static NocheEternaAPI api;
+    public static StateFlag noDarknessFlag;
+
+    @Override
+    public void onLoad() {
+        if (getServer().getPluginManager().getPlugin("WorldGuard") == null) return;
+        try {
+            FlagRegistry registry = WorldGuard.getInstance().getFlagRegistry();
+            StateFlag flag = new StateFlag("no-darkness", false);
+            registry.register(flag);
+            noDarknessFlag = flag;
+            getLogger().info("[Integration] WorldGuard flag 'no-darkness' registered.");
+        } catch (Exception e) {
+            try {
+                noDarknessFlag = (StateFlag) WorldGuard.getInstance().getFlagRegistry().get("no-darkness");
+            } catch (Exception ignored) {}
+        }
+    }
 
     private ConfigManager configManager;
     private PlayerDataManager playerDataManager;

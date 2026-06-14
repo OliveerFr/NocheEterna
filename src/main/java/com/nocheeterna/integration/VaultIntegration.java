@@ -3,6 +3,7 @@ package com.nocheeterna.integration;
 import com.nocheeterna.NocheEterna;
 import com.nocheeterna.darklevel.DarkPhaseChangeEvent;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -36,7 +37,7 @@ public class VaultIntegration implements Listener {
                 return false;
             }
             economy = rsp.getProvider();
-            depositMethod = economyClass.getMethod("depositPlayer", Player.class, double.class);
+            depositMethod = economyClass.getMethod("depositPlayer", OfflinePlayer.class, double.class);
             currencyNameMethod = economyClass.getMethod("currencyNamePlural");
 
             Bukkit.getPluginManager().registerEvents(this, plugin);
