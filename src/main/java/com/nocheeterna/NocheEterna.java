@@ -1,5 +1,7 @@
 package com.nocheeterna;
 
+import com.nocheeterna.api.InternalAPI;
+import com.nocheeterna.api.NocheEternaAPI;
 import com.nocheeterna.commands.NocheCommand;
 import com.nocheeterna.core.ConfigManager;
 import com.nocheeterna.core.PlayerDataManager;
@@ -11,11 +13,15 @@ import com.nocheeterna.horror.AmbientHorrorManager;
 import com.nocheeterna.integration.HookManager;
 import com.nocheeterna.mobs.MobScaleManager;
 import com.nocheeterna.network.NetworkSecurityManager;
+import com.nocheeterna.ux.ActionBarFeedback;
+import com.nocheeterna.ux.PlayerWelcome;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class NocheEterna extends JavaPlugin {
 
     private static NocheEterna instance;
+    private static NocheEternaAPI api;
+
     private ConfigManager configManager;
     private PlayerDataManager playerDataManager;
     private DarkLevelManager darkLevelManager;
@@ -60,10 +66,19 @@ public final class NocheEterna extends JavaPlugin {
         int interval = configManager.getPassiveInterval();
         darkLevelTask.runTaskTimer(this, interval, interval);
 
+        getServer().getPluginManager().registerEvents(
+                new PlayerWelcome(this), this);
+
+        ActionBarFeedback actionBar = new ActionBarFeedback(this);
+        actionBar.start();
+
         hookManager = new HookManager(this);
         hookManager.hookAll();
 
         getCommand("noche").setExecutor(new NocheCommand(this));
+
+        api = new InternalAPI(this, darkLevelManager,
+                new com.nocheeterna.api.HorrorServiceImpl(this));
 
         getLogger().info("NocheEterna enabled - the darkness awaits.");
     }
@@ -74,12 +89,18 @@ public final class NocheEterna extends JavaPlugin {
         if (ambientHorrorManager != null) ambientHorrorManager.stop();
         if (hookManager != null && hookManager.getBossBar() != null) hookManager.getBossBar().stop();
         if (playerDataManager != null) playerDataManager.saveData();
+        instance = null;
+        api = null;
 
         getLogger().info("NocheEterna disabled.");
     }
 
     public static NocheEterna get() {
         return instance;
+    }
+
+    public static NocheEternaAPI getAPI() {
+        return api;
     }
 
     public ConfigManager getConfigManager() {

@@ -1,16 +1,15 @@
-package com.nocheeterna.darklevel;
+package com.nocheeterna.api;
 
 import com.nocheeterna.NocheEterna;
-import com.nocheeterna.api.DarkLevelService;
 import com.nocheeterna.events.LevelChangeEvent;
 
 import java.util.UUID;
 
-public class DarkLevelManager implements DarkLevelService {
+public class DarkLevelServiceImpl implements DarkLevelService {
 
     private final NocheEterna plugin;
 
-    public DarkLevelManager(NocheEterna plugin) {
+    public DarkLevelServiceImpl(NocheEterna plugin) {
         this.plugin = plugin;
     }
 
@@ -27,17 +26,12 @@ public class DarkLevelManager implements DarkLevelService {
         double newLevel = getDarkLevel(uuid);
         String newPhase = getPhase(newLevel);
 
-        if (oldLevel != newLevel) {
-            LevelChangeEvent.ChangeCause cause = (newLevel > oldLevel)
-                    ? LevelChangeEvent.ChangeCause.OTHER
-                    : LevelChangeEvent.ChangeCause.COMMAND;
-            plugin.getServer().getPluginManager().callEvent(
-                    new LevelChangeEvent(uuid, oldLevel, newLevel, cause));
-        }
+        plugin.getServer().getPluginManager().callEvent(
+                new LevelChangeEvent(uuid, oldLevel, newLevel, LevelChangeEvent.ChangeCause.COMMAND));
 
         if (!oldPhase.equals(newPhase)) {
             plugin.getServer().getPluginManager().callEvent(
-                    new DarkPhaseChangeEvent(uuid, oldPhase, newPhase));
+                    new com.nocheeterna.darklevel.DarkPhaseChangeEvent(uuid, oldPhase, newPhase));
         }
     }
 
@@ -48,7 +42,7 @@ public class DarkLevelManager implements DarkLevelService {
 
     @Override
     public void removeDarkLevel(UUID uuid, double amount) {
-        setDarkLevel(uuid, Math.max(0, getDarkLevel(uuid) - amount));
+        setDarkLevel(uuid, getDarkLevel(uuid) - amount);
     }
 
     @Override

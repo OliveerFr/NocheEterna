@@ -68,6 +68,10 @@ public class AmbientHorrorManager {
         }.runTaskTimer(plugin, interval, interval);
     }
 
+    public void playPhaseAmbientSound(Player player, String phase) {
+        playAmbientSound(player, phase);
+    }
+
     private void playAmbientSound(Player player, String phase) {
         List<String> sounds = plugin.getConfig().getStringList("ambient.sounds.sounds." + phase);
         if (sounds == null || sounds.isEmpty()) return;

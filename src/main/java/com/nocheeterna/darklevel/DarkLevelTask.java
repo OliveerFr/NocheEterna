@@ -2,12 +2,11 @@ package com.nocheeterna.darklevel;
 
 import com.nocheeterna.NocheEterna;
 import com.nocheeterna.core.ConfigManager;
+import com.nocheeterna.events.LevelChangeEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
-
-import java.util.UUID;
 
 public class DarkLevelTask extends BukkitRunnable {
 
@@ -27,12 +26,9 @@ public class DarkLevelTask extends BukkitRunnable {
         for (Player player : Bukkit.getOnlinePlayers()) {
             if (player.hasPermission("nocheeterna.bypass")) continue;
 
-            UUID uuid = player.getUniqueId();
+            var uuid = player.getUniqueId();
             double gain = 0.0;
-
-            if (cfg.isDebug()) {
-                gain += 0; // base passive is added below
-            }
+            LevelChangeEvent.ChangeCause cause = LevelChangeEvent.ChangeCause.PASSIVE_GAIN;
 
             gain += cfg.getPassiveGain();
 
@@ -45,14 +41,51 @@ public class DarkLevelTask extends BukkitRunnable {
                     && player.getLocation().getBlock().getLightFromSky() > 10
                     && !isNight;
 
-            if (isNight) gain += cfg.getNightGain();
-            if (isCave) gain += cfg.getCaveGain();
-            if (isSurfaceDay) gain -= cfg.getSurfaceDecay();
+            if (isNight) {
+                gain += cfg.getNightGain();
+                cause = LevelChangeEvent.ChangeCause.NIGHT;
+            }
+            if (isCave) {
+                gain += cfg.getCaveGain();
+                cause = LevelChangeEvent.ChangeCause.CAVE;
+            }
 
             if (gain > 0) {
-                plugin.getDarkLevelManager().addDarkLevel(uuid, gain);
-            } else if (gain < 0) {
-                plugin.getPlayerDataManager().removeDarkLevel(uuid, Math.abs(gain));
+                double oldLevel = plugin.getDarkLevelManager().getDarkLevel(uuid);
+                String oldPhase = plugin.getDarkLevelManager().getPhase(oldLevel);
+                String newPhase = plugin.getDarkLevelManager().getPhase(oldLevel + gain);
+
+                plugin.getPlayerDataManager().addDarkLevel(uuid, gain);
+                double newLevel = plugin.getDarkLevelManager().getDarkLevel(uuid);
+
+                plugin.getServer().getPluginManager().callEvent(
+                        new LevelChangeEvent(uuid, oldLevel, newLevel, cause));
+
+                if (!oldPhase.equals(newPhase)) {
+                    plugin.getServer().getPluginManager().callEvent(
+                            new DarkPhaseChangeEvent(uuid, oldPhase, newPhase));
+                }
+            }
+
+            if (isSurfaceDay) {
+                double oldLevel = plugin.getDarkLevelManager().getDarkLevel(uuid);
+                double decay = cfg.getSurfaceDecay();
+                String oldPhase = plugin.getDarkLevelManager().getPhase(oldLevel);
+                String newPhase = plugin.getDarkLevelManager().getPhase(oldLevel - decay);
+
+                plugin.getPlayerDataManager().removeDarkLevel(uuid, decay);
+                double newLevel = plugin.getDarkLevelManager().getDarkLevel(uuid);
+
+                if (oldLevel != newLevel) {
+                    plugin.getServer().getPluginManager().callEvent(
+                            new LevelChangeEvent(uuid, oldLevel, newLevel,
+                                    LevelChangeEvent.ChangeCause.SURFACE_DECAY));
+                }
+
+                if (!oldPhase.equals(newPhase)) {
+                    plugin.getServer().getPluginManager().callEvent(
+                            new DarkPhaseChangeEvent(uuid, oldPhase, newPhase));
+                }
             }
         }
 
@@ -60,9 +93,6 @@ public class DarkLevelTask extends BukkitRunnable {
         if (saveCounter >= (cfg.getSaveInterval() / 600)) {
             saveCounter = 0;
             plugin.getPlayerDataManager().saveData();
-            if (cfg.isDebug()) {
-                plugin.getLogger().info("[DEBUG] Player data saved.");
-            }
         }
     }
 }
