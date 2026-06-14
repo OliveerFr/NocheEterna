@@ -1,0 +1,167 @@
+# ===========================
+# NocheEterna - Config
+# ===========================
+
+# --- General ---
+enabled: true
+debug: false
+
+# --- Dark Level ---
+dark-level:
+  start: 0
+  max: 100
+  # Passive gain per tick interval (20 ticks = 1 second)
+  passive-gain:
+    enabled: true
+    interval-ticks: 600        # every 30 seconds
+    amount: 0.05               # tiny passive rise
+  # Extra gain triggers
+  night-gain: 0.15             # per interval while in overworld at night
+  cave-gain: 0.25             # per interval while below Y=40 and no sky light
+  death-gain: 5.0             # flat gain on player death
+  damage-gain: 0.1            # gain per half-heart of damage taken
+  # Passive decay in safe zones
+  surface-decay: 0.02         # per interval above Y=64 in daylight
+  # Save interval (ticks)
+  save-interval: 6000         # every 5 minutes
+
+# --- Phases ---
+phases:
+  twilight:
+    min: 0
+    max: 20
+  night:
+    min: 21
+    max: 50
+  nightmare:
+    min: 51
+    max: 80
+  abyss:
+    min: 81
+    max: 100
+
+# --- Ambient Horror (MVP) ---
+ambient:
+  fog:
+    enabled: true
+    # Distance multiplier per phase (lower = thicker)
+    distances:
+      twilight: 0.75
+      night: 0.5
+      nightmare: 0.3
+      abyss: 0.15
+  sounds:
+    enabled: true
+    interval-ticks: 1200     # every 60 seconds
+    sounds:
+      twilight:
+        - "AMBIENT_CAVE:0.3:1.0"
+      night:
+        - "AMBIENT_CAVE:0.5:0.7"
+        - "ENTITY_WOLF_HOWL:0.3:0.6"
+      nightmare:
+        - "ENTITY_WARDEN_HURT:0.3:0.4"
+        - "AMBIENT_CAVE:0.6:0.4"
+        - "ENTITY_ENDERMAN_STARE:0.4:0.3"
+      abyss:
+        - "ENTITY_WARDEN_ANGRY:0.5:0.3"
+        - "ENTITY_ENDERMAN_SCREAM:0.4:0.2"
+        - "ENTITY_WARDEN_LISTENING:0.36:0.3"
+  sky-darken:
+    enabled: true
+    multipliers:
+      twilight: 0.85
+      night: 0.6
+      nightmare: 0.35
+      abyss: 0.15
+  particles:
+    enabled: true
+    interval-ticks: 40       # every 2 seconds
+    types:
+      twilight: "ASH:1:0.2"
+      night: "SOUL:2:0.4"
+      nightmare: "REVERSE_PORTAL:3:0.6"
+      abyss: "SCULK_SOUL:4:0.8"
+
+# --- Mob Scaling (MVP) ---
+mobs:
+  enabled: true
+  hp-multiplier:
+    twilight: 1.0
+    night: 1.3
+    nightmare: 1.8
+    abyss: 2.5
+  damage-multiplier:
+    twilight: 1.0
+    night: 1.2
+    nightmare: 1.6
+    abyss: 2.2
+  speed-multiplier:
+    twilight: 1.0
+    night: 1.1
+    nightmare: 1.25
+    abyss: 1.4
+  glow-eyes:
+    enabled: true
+    phases:
+      - nightmare
+      - abyss
+  spawn-rate-multiplier:
+    night: 1.3
+    nightmare: 1.6
+    abyss: 2.0
+  max-entities-per-player: 30
+  excluded-mobs:
+    - VILLAGER
+    - WANDERING_TRADER
+    - IRON_GOLEM
+    - AXOLOTL
+    - ALLAY
+
+# --- BossBar Indicator ---
+bossbar:
+  enabled: true
+
+# --- Vault Economy Rewards ---
+vault:
+  rewards:
+    night: 10.0
+    nightmare: 25.0
+    abyss: 50.0
+
+# --- Network Security ---
+network:
+  bungeecord:
+    enabled: true
+    allowed-proxies:
+      - lobby
+      - survival
+      - creative
+    enforce-ip-forward: true
+  rate-limit:
+    max-commands: 10
+    window-seconds: 10
+  anti-exploit:
+    entities-per-chunk-cap: 8
+    clamp-inputs: true
+
+# --- Data Storage ---
+storage:
+  type: yaml
+  yaml-file: player_data.yml
+
+# --- Messages ---
+messages:
+  prefix: "&8[&5Noche Eterna&8] "
+  phase-change: "&7The darkness deepens... &o%s &7descends upon you."
+  phase-names:
+    twilight: "&eCrepusculo"
+    night: "&9Noche"
+    nightmare: "&5Pesadilla"
+    abyss: "&4Abismo"
+  level-command:
+    self: "&7Your dark level: &5%d &7(%s&7)"
+    other: "&7%s's dark level: &5%d &7(%s&7)"
+    set: "&7Set &5%s&7's dark level to &5%d &7(%s&7)"
+  no-permission: "&cYou don't have permission for that."
+  reload: "&aNocheEterna config reloaded."

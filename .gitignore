@@ -1,0 +1,27 @@
+# Maven
+target/
+pom.xml.sha1
+*.class
+*.jar
+!target/*.jar
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+*.sublime-*
+
+# OS
+Thumbs.db
+.DS_Store
+Desktop.ini
+
+# Logs
+*.log
+
+# Minecraft server jars / test servers
+server/
+*.jar~

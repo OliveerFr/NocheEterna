@@ -1,0 +1,39 @@
+name: NocheEterna
+version: ${project.version}
+main: com.nocheeterna.NocheEterna
+api-version: '1.21'
+description: Progressive difficulty and horror plugin for Minecraft
+author: OliveerF
+website: oliveerf.sbs
+softdepend:
+  - PlaceholderAPI
+  - ProtocolLib
+  - WorldGuard
+  - Vault
+
+commands:
+  noche:
+    description: Main command for NocheEterna
+    usage: /noche <subcommand>
+    permission: nocheeterna.admin
+  noche reload:
+    description: Reload plugin config
+    permission: nocheeterna.admin
+  noche level:
+    description: Check or set a player's dark level
+    usage: /noche level [player] [set <value>]
+    permission: nocheeterna.admin
+  noche phase:
+    description: Check current horror phase
+    permission: nocheeterna.use
+
+permissions:
+  nocheeterna.admin:
+    description: Full admin access to NocheEterna
+    default: op
+  nocheeterna.use:
+    description: Basic player commands
+    default: true
+  nocheeterna.bypass:
+    description: Bypass horror effects (for staff)
+    default: op
