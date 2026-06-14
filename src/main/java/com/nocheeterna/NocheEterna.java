@@ -13,6 +13,8 @@ import com.nocheeterna.horror.AmbientHorrorManager;
 import com.nocheeterna.integration.HookManager;
 import com.nocheeterna.mobs.MobScaleManager;
 import com.nocheeterna.network.NetworkSecurityManager;
+import com.nocheeterna.network.NetworkSyncManager;
+import com.nocheeterna.network.NetworkJoinListener;
 import com.nocheeterna.ux.ActionBarFeedback;
 import com.nocheeterna.ux.PlayerWelcome;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -28,6 +30,7 @@ public final class NocheEterna extends JavaPlugin {
     private AmbientHorrorManager ambientHorrorManager;
     private MobScaleManager mobScaleManager;
     private NetworkSecurityManager networkSecurityManager;
+    private NetworkSyncManager networkSyncManager;
     private DarkLevelTask darkLevelTask;
     private HookManager hookManager;
 
@@ -50,6 +53,11 @@ public final class NocheEterna extends JavaPlugin {
         networkSecurityManager = new NetworkSecurityManager(this);
         networkSecurityManager.register();
 
+        networkSyncManager = new NetworkSyncManager(this);
+        networkSyncManager.register();
+        getServer().getPluginManager().registerEvents(
+                new NetworkJoinListener(this, networkSyncManager), this);
+
         if (configManager.isAmbientEnabled()) {
             getServer().getPluginManager().registerEvents(
                     new AmbientHorrorListener(this), this);
@@ -63,6 +71,7 @@ public final class NocheEterna extends JavaPlugin {
         }
 
         darkLevelTask = new DarkLevelTask(this);
+        darkLevelTask.checkSafeZone();
         int interval = configManager.getPassiveInterval();
         darkLevelTask.runTaskTimer(this, interval, interval);
 
@@ -88,6 +97,7 @@ public final class NocheEterna extends JavaPlugin {
         if (darkLevelTask != null) darkLevelTask.cancel();
         if (ambientHorrorManager != null) ambientHorrorManager.stop();
         if (hookManager != null && hookManager.getBossBar() != null) hookManager.getBossBar().stop();
+        if (networkSyncManager != null) networkSyncManager.unregister();
         if (playerDataManager != null) playerDataManager.saveData();
         instance = null;
         api = null;
@@ -125,6 +135,10 @@ public final class NocheEterna extends JavaPlugin {
 
     public NetworkSecurityManager getNetworkSecurityManager() {
         return networkSecurityManager;
+    }
+
+    public NetworkSyncManager getNetworkSyncManager() {
+        return networkSyncManager;
     }
 
     public HookManager getHookManager() {

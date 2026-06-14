@@ -21,6 +21,7 @@ public class MobScaleManager implements Listener {
 
     private final NocheEterna plugin;
     private final NamespacedKey scaledKey;
+    private boolean isSafeZone = false;
 
     public MobScaleManager(NocheEterna plugin) {
         this.plugin = plugin;
@@ -28,11 +29,15 @@ public class MobScaleManager implements Listener {
     }
 
     public void register() {
+        String serverName = plugin.getConfigManager().getServerName();
+        isSafeZone = plugin.getConfig().getStringList("network.safe-zones")
+                .stream().anyMatch(s -> s.equalsIgnoreCase(serverName));
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onMobTarget(EntityTargetEvent event) {
+        if (isSafeZone) return;
         if (!(event.getEntity() instanceof Monster monster)) return;
         if (!(event.getTarget() instanceof Player player)) return;
 

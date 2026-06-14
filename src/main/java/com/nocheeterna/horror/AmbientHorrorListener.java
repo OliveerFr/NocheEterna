@@ -22,6 +22,7 @@ public class AmbientHorrorListener implements Listener {
     public void onPhaseChange(DarkPhaseChangeEvent event) {
         Player player = Bukkit.getPlayer(event.getPlayerUuid());
         if (player == null || !player.isOnline()) return;
+        if (isSafeZone()) return;
 
         PhaseTransitionSequence.play(plugin, player, event.getOldPhase(), event.getNewPhase());
 
@@ -33,6 +34,7 @@ public class AmbientHorrorListener implements Listener {
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
+        if (isSafeZone()) return;
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             Player player = event.getPlayer();
             if (player.hasPermission("nocheeterna.bypass")) return;
@@ -42,5 +44,11 @@ public class AmbientHorrorListener implements Listener {
                 plugin.getAmbientHorrorManager().applyFogEffect(player, phase);
             }
         }, 10L);
+    }
+
+    private boolean isSafeZone() {
+        String serverName = plugin.getConfigManager().getServerName();
+        return plugin.getConfig().getStringList("network.safe-zones")
+                .stream().anyMatch(s -> s.equalsIgnoreCase(serverName));
     }
 }

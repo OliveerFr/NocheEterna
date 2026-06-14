@@ -29,6 +29,8 @@ public class ConfigManager {
 
     private boolean mobsEnabled;
 
+    private String serverName;
+
     private boolean bungeeCordEnabled;
     private List<String> allowedProxies;
     private boolean enforceIpForward;
@@ -65,6 +67,8 @@ public class ConfigManager {
 
         mobsEnabled = c.getBoolean("mobs.enabled", true);
 
+        serverName = c.getString("server-name", "survival");
+
         bungeeCordEnabled = c.getBoolean("network.bungeecord.enabled", true);
         allowedProxies = c.getStringList("network.bungeecord.allowed-proxies");
         enforceIpForward = c.getBoolean("network.bungeecord.enforce-ip-forward", true);
@@ -89,6 +93,7 @@ public class ConfigManager {
     public boolean isSkyDarkenEnabled() { return skyDarkenEnabled; }
     public boolean isParticlesEnabled() { return particlesEnabled; }
     public boolean isMobsEnabled() { return mobsEnabled; }
+    public String getServerName() { return serverName; }
     public boolean isBungeeCordEnabled() { return bungeeCordEnabled; }
     public List<String> getAllowedProxies() { return allowedProxies; }
     public boolean isEnforceIpForward() { return enforceIpForward; }

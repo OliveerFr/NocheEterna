@@ -6,6 +6,12 @@
 enabled: true
 debug: false
 
+# --- Network Identity ---
+# This server's name in the BungeeCord network.
+# Must match the name in the BungeeCord proxy config for cross-server sync.
+# If unset, defaults to the value in server.properties.
+server-name: "survival"
+
 # --- Dark Level ---
 dark-level:
   start: 0
@@ -138,6 +144,24 @@ network:
       - survival
       - creative
     enforce-ip-forward: true
+
+  # --- Cross-Server Plugin Messaging ---
+  # Syncs dark level data across all servers in the network.
+  # Uses channel "onminetwork:main" (same as OmniNetwork ecosystem).
+  sync:
+    enabled: true
+    channel: "onminetwork:main"
+    # Broadcast on significant level changes (delta threshold)
+    broadcast-threshold: 0.5
+
+  # --- Safe Zones ---
+  # These server names are treated as safe zones where dark level
+  # does NOT increase and horror effects are suppressed.
+  # Typically: lobby, login
+  safe-zones:
+    - lobby
+    - login
+    - test
   rate-limit:
     max-commands: 10
     window-seconds: 10
